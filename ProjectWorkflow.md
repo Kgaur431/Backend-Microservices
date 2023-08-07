@@ -190,7 +190,15 @@
                             the converter is simple & manager we created using the jwtService & userService.
             
             
-            
+            Ques:- Where the JWTAuthentication Manager being called ?
+            Ans :- We are not calling, it is just default configuration of springboot that "When we create a Filter (in AppSecurityConfig class) 
+                    inside the constructor of the filter (JWTAuthenticationFilter) we are passing the authentication manager & authentication converter. 
+                    so springboot will automatically do this (AuthenticationFilter.png) for us." 
+                    if client pass the token then it will call the manager class. if convertor return the authentication object then it will call the authentication manager. 
+                        if the manager failed to authenticate then it means that request is not authenticated. || if the convertor is failed that means the format is wrong. so it moves to the next filter.
+             
+                    -   when the filter is running (like apart from these about, login, signup) if we set the context then every controller that is behind that filter 
+                        (means, all the api which need to authenticate) will have the authentication object. 
             
             
             
