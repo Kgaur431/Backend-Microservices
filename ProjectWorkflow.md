@@ -68,7 +68,57 @@
                         11.3  add createToken() method in JwtService class.
                         11.4  add getUserFromToken() method in JwtService class.
             12. added the JWT implementation in UserSerivce class. 
-            
+                (till now we have used httpBasic() now we want token based authentication so we use SessionManagement. session will use token automatically).
+            13. instead of using httpBasic() now we are using JWT( the AppSecurityConfig class).
+                        13.2  we add the sessionController class.
+                        13.3  we add the sessionCreationPolicy() method in AppSecurityConfig class.    
+            14. we are adding authentication filter in AppSecurityConfig class (read about from readme.md file)
+                        14.1  we add the JwtAuthenticationFilter class which extends AuthenticationFilter class.
+                                14.1.1  we have to add the parameterized constructor in JwtAuthenticationFilter class with two arguments.
+                        14.2  we access the JwtAuthenticationFilter class in AppSecurityConfig class.
+                                14.3  we need to create the bean for the JwtAuthenticationFilter class in AppSecurityConfig class.
+                        14.3  we added .addFilterBefore() method in AppSecurityConfig class with two arguments. (must read it from AuthToken.md file)
+            15. we added the authentication manager & authentication converter classes. 
+                        15.1 we added the AuthenticationManager class which extends the AuthenticationManager class. 
+                                15.1.1  we implements the authenticate() method in AuthenticationManager class.
+                        15.2 we added the AuthenticationConverter class which extends the AuthenticationConverter class.
+                                15.2.1  we implements the convert() method in AuthenticationConverter class.
+            16. we are implements that "How we can read the Bearer token" in AuthenticationConverter class.
+                          bearer token:- Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGFyYyIsImlhdCI6MTY5MTAwNDY3NH0.5KOu66mbFKONL-vandG4nN_tigO5wQVGIid0O9ZZMEA
+                        16.1 we get the token from the request header in convert() method of AuthenticationConverter class using request.getHeader("Authorization").
+                        16.2 we take the token from the request header & we split it with "Bearer " & space, then take substring(7) from the bearer token.
+                        16.3 we are checking the token is JWT or not || Server side token or not. whichever method we are using. 
+                        16.4 we return the JWTAuthentication object with token.
+            17. we are creating JWTAuthentication class  that will create JWTAuthentication object. (creating Authentication object with token)     
+                        17.1 we create a jwtString field in JWTAuthentication class.
+                        17.2 getCredentials() method in JWTAuthentication class will return the jwtString. 
+            18. we need JWTService class object & UserSerivce class object in AuthenticationManager class. so we create the constructor in AuthenticationManager class.
+                            in authenticate() method of AuthenticationManager class we get the JWTAuthentication object from the AuthenticationConverter class. (we finding that user exists or not from the Authentication Object.)
+                        18.1   in Manager class we will check that instance of Authentication object is JWTAuthentication or not. 
+                                18.1.1  by using jwtAuthentication.getCredentials() method we get the jwtString. means the token.
+                        18.2   by using jwtService.getUserFromToken() method we get the username from the token. this step can be failed if token is not valid.
+                        18.3   we get the user from the userService class using username.
+                                18.3.1  for doing that we need to create getUserByUsername() method in UserRepo class.
+                                18.3.2  we create getUserByUsername() method in UserService class. that returns the user
+                        18.4   we get the user in the AuthenticationManager class. by using the userSerivce.getUserByUsername() method.
+                        18.5   we chnage the return type of getPrincipal() method in JWTAuthentication class. (we return the User object called UserResponseDto)
+                                18.5.1  we create the UserResponseDto object(user) in JWTAuthentication class. & setter method for that.
+                                    (when authentication object is created (JWTAuthenticationConverter) it only contains jwt string. when it goes through the manager that time jwt string convert into user object. so rest of the application will deal with user object.)
+                                18.5.2  for doing that manager class will set the user object in the JWTAuthentication class. by doing jwtAuthentication.setUser(user).
+                                    (at converter class, we create the authentication object & in manager class we populate the authentication object with the user once its verfiied)
+            19. we have changed the constructor argument in JWTAuthenticationFilter class where we have to just pass the AuthenticationManager object. (read the AuthToken.md file)
+                        19.1    instead of using bean in AppSecurityConfig class we are createing the object of JWTAuthenticationFilter class in AppSecurityConfig class.
+                        19.2    we have added the jwtservice & userservice in the constructor of AppSecurityConfig class. & we are passing the jwtservice & userservice object in the constructor of JWTAuthenticationFilter class.  & pass it to JWTAuthenticationManager class.      
+            20. we have just Success handler in JwtAuthenticationFilter class. (read below).
+                        20.1    we have added the successHandler() method in JwtAuthenticationFilter class.   
+                      (now, how context is available everywhere in my code that we doing below)
+            21. we have added @AuthenticationPrincipal in the privateAbout() of AboutController. (read below:- before 20).
+                            (wherever we write @AuthenticationPrincipal annotation in controller we will get the authentication object.)
+                        21.1    we are getting the user object in the privateAbout() method (test:- if client pass token then we get the user object otherwise we get the null).
+                            
+                        
+                        
+                                    
                         
                         
             
@@ -78,25 +128,66 @@
             
             
             
+        Case Study:-
+                    
+                    when we access this url (http://localhost:8282/about/test) from browser then it will redirect to default login page.
+                    & if we access through postman then it is saying unauthorized.
+                       
+                    Why this redirection is happening?
+                        because we are using httpBasic() in configure method of AppSecurityConfig class.
+                        where spring has its internal security mechanism where it takes username & password, & it makes it part of our cookie.
+                        for that we have to write code to match the username & password.
+                        rather than that we want token based authentication.
+                        
+                        this is sending the username & password in the Form data means without encryption.
+            
+        Session management:-
+                            "it enforces only single instance of the user is authenticated at a time." 
+                                means, whenever somebody is using any of the api endpoints spring will make sure that only one instance of the user is authenticated.   
+                                let say, certain header if we want to read somebody passes two times the same header one with token of user1 & another with token of user2.
+                                then spring will never treat an HTTP Request To have two different users. session management automatically takes care of that.
+                                
+                            How to do that ?
+                                we create a sessionController. 
+        
+        Session Creation Policy:-
+                            like we use Stateless, means SERVER will not in the memory, it is expect that session data coming alwasys from the client. which is HTTP Header.
+                                     every request will come with http header.
             
             
             
             
             
+        before 20:-
+                    after setting up the JWTAuthenticationConverter & JWTAuthenticationManager class we are getting the user object in the AuthenticationManager class.
+                    after user object we set the success handler in JWTAuthenticationFilter class.   
+                    for setting the success handler we need security context  (read this https://www.baeldung.com/get-user-in-spring-security)
+                    like this:-
+                             SecurityContextHolder.getContext().setAuthentication(authentication);
+                        what does this line do ?
+                              when inside the JWTAutenticationFilter security authentication is successfull when JWTAuthenticationManager send non-null value
+                              then success handler actually set the authentication object in the security context.
+                          IMP:- "AS SOON AS AUTHENTICATION OBJECT GET SETS THEN ACROSS MY ENTIRE APPLICATION, EVERYWHERE INSIDE MY CONTROLLER THIS 
+                                    AUTHENTICATION OBJECT IS AVAILABLE TO ME."
+                             How this will help?
+                                everywhere in my project in my controller after the request has passed to this filter, i would know "WHO IS AUTHENTICATED"
+                                    becoz this authentication object is available to me. means inside the authentication object i have the user object.
+                        what is context ?
+                                read this from readme.md file        
             
+                        in this below line:-
+                            this.setSuccessHandler((request, response, authentication) -> {
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                            });
+                            
+                        here we are setting the authentication object in the security context we are setting up the authentication object 
+                        whenever the authentication is successfull. so that after successfull we can reterive the user object from the security context
+                        whenever we want.
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+                    Summary:-
+                            In the security config, we added the authentication filter that authentication filter we have to create using 
+                            jwtAuthenticationConverter & jwtAuthenticationManager in the JWTAuthenticationFilter constructor.
+                            the converter is simple & manager we created using the jwtService & userService.
             
             
             
@@ -114,7 +205,7 @@
     
     
     
-    
+     
     
     
     
@@ -135,3 +226,6 @@
     
     
 ``` 
+
+[Guide 1](https://spring.io/guides/gs/securing-web/):- to implement the JWT token in spring boot application.
+[Guide 2](https://baeldung.com/get-user-in-spring-security):- to implement the JWT token in spring boot application.    both are same. 

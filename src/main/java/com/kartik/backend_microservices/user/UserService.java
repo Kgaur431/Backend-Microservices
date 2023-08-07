@@ -7,6 +7,7 @@ import com.kartik.backend_microservices.user.dtos.LoginUserDto;
 import com.kartik.backend_microservices.user.dtos.UserResponseDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +63,14 @@ public class UserService {
         UserResponseDto response = modelMapper.map(userEntity, UserResponseDto.class);
         response.setToken(authTokenService.createToken(userEntity));
         return response;
+    }
+
+    public UserResponseDto getUserByUsername(String username){
+        UserEntity user = userRepository.findByUsername(username);
+        if(user == null){
+            throw new RuntimeException("User not found");
+        }
+        return modelMapper.map(user, UserResponseDto.class);
     }
 
 
