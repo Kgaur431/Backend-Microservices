@@ -7,11 +7,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthTokenService {
-    @Autowired
+    // @Autowired   for creating text we have commented & used constructor injection
     private AuthTokenRepository authTokenRepository;
 
-    @Autowired
+    // @Autowired
     private UserRepository userRepository;
+
+    public AuthTokenService(AuthTokenRepository authTokenRepository, UserRepository userRepository)
+    {
+        this.userRepository = userRepository;
+        this.authTokenRepository = authTokenRepository;
+    }
 
 
 

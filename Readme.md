@@ -174,6 +174,43 @@
                 that is called Context. here the context means this above information.
                     context are different in different different areas 
                     
+   
+   
+   Testing:-
+            writing test is more about knowing the convention than knowing the skills. 
+            skill wise its just writing java code.
+            Convention are more important:-
+                                   Now, we want to write test for the JwtService class. 
+                                        the JwtService is in  package com.kartik.backend_microservices.security.jwt
+                                   then the test should be in same package but in test folder.
+                                        so we have to create an package in test folder com.kartik.backend_microservices.security.jwt 
+                                        here, we can write the class JwtServiceTest.java
+                                   
+                                   To write an test we have bunch of annotations.
+                                        1.  SpringBootTest :- 
+                                                if we annotate any class with this annotation then entire springboot application will be test. 
+                                        2.  DataJpaTest :- 
+                                                if we annotate any class with this annotation, it bootup  which only test for db related stuff not for the entire springboot application.
+                                                    means it only run the JPA Layer.
+                                   
+            when we start writing test that's how writing test leads us to write better code.
+            
+            If we run the test with coverage then green lines means that lines are covered by the test. red lines means that lines are not covered by the test.
+                When the coverage is 100% 
+                    when we have written the code & then we have written the test for that code.
+                    then we can say that we have 100% coverage.
+                When the coverage is not 100%
+                    but if we have written the code & then we have not written the test for that code.
+                    then we can say that we have not 100% coverage.
+                        like we have handle the IllegalArgumentException in the JwtService class for handling the null value.
+                            but we have not written the test for that code.
+                            so we can say that we have not 100% coverage.
+   
+   
+   
+   
+   
+   
                     
                     
              

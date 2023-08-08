@@ -115,9 +115,22 @@
             21. we have added @AuthenticationPrincipal in the privateAbout() of AboutController. (read below:- before 20).
                             (wherever we write @AuthenticationPrincipal annotation in controller we will get the authentication object.)
                         21.1    we are getting the user object in the privateAbout() method (test:- if client pass token then we get the user object otherwise we get the null).
-                            
-                        
-                        
+            22. Testing:-  we are testing JwtService class.  (read readme.md file)
+                        22.1    we need only JwtService class object in JwtServiceTest class. so we construct this only becoz we don't have any dependency so we don't need the dependency layer. 
+                        22.2    we create this createJwt_works_with_username() in JwtServiceTest class. (read readme.md file)
+                        22.3    we create this createJwt_throws_exception_when_token_is_null() in JwtServiceTest class. (read readme.md file)
+                                22.3.1  we handle the IllegalArgumentException in createJwt() method of JwtService class. after testing 22.3 method, that is called TDD.
+            23. Testing AuthToken layer
+                        23.1    we create the package called com.kartik.backend_microservices.security.authtoken_server_side in test folder. 
+                        23.2    create AuthTokenServiceTest class in this package.     
+                                23.2.1  added the annotation with text called @DataJpaTest in AuthTokenServiceTest class.
+                                23.2.2  we annotate the object of AuthTokenService class with @Autowired in AuthTokenServiceTest class.
+                                23.2.3  write the test case called createAuthToken_works_with_userentity() in AuthTokenServiceTest class.
+                                        (to create a token we need userEntity so if we want userEntity then it has to be actual userEntity that saved in userService. so we have to @Autowired the userService object in AuthTokenServiceTest class.)  
+                                23.2.4  we @Autowired the userService object in AuthTokenServiceTest class. (while creating we added new annotation in CreateUserDto class.)
+                                23.2.5  we create the object using createUser()
+                        23.3    we need the userRepo object to get the UserEntity object that required in createToken(). (there are other ways also to get the userEntity)
+                        23.4    we create the @BeforeEach to set up the serices that we injected in AuthTokenServiceTest class.
                                     
                         
                         
@@ -200,15 +213,27 @@
                     -   when the filter is running (like apart from these about, login, signup) if we set the context then every controller that is behind that filter 
                         (means, all the api which need to authenticate) will have the authentication object. 
             
+            Ques:-  In the Auth service layer test, whenever we are making the object of the repository like AuthTokenRepository. 
+                     how AuthTokenRepository is constructed, during the test how we can actually mock this AuthTokenRepository ?
+            Ans :-   point 23.
             
             
-            
-            
-            
+        @DataJpaTest:-  (It is faster)
+                        We are testing the Repository layer. so we used @DataJpaTest annotation.
+                        it will create the in-memory database. so that we can test the repository layer.   
+                        here, we don't need to boot the entire application. we just need to boot the repository layer.
+                        so, we don't need to use @SpringBootTest annotation (it will boot the MVC Layer). 
+                        
+                        unless we are not testing the controller layer we don't need to use @SpringBootTest annotation.
+                        
+                        if we use @DataJpaTest annotation then it will not access the Service layer so that if 
+                        we access the service layer then it will throw the error.
+                        so the services are not generated automatcially. only the repository layer is generated.
+                            we will create the services in our test class. 
             
 
-                    
-                                
+         
+        @SpringBootTest:- (It is slower)                    
     
     
     

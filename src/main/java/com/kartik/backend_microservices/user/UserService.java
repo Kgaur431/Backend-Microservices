@@ -22,20 +22,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
+    // @Autowired
     public AuthTokenService authTokenService;
-    @Autowired
+    // @Autowired        // if we have commented this because we are using constructor injection in AuthTokenServiceTest class. because here we are using @DataJpaTest so it will not create the service
     public JwtService jwtService;
 
 
 
 
-    public UserService(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, AuthTokenService authTokenService, JwtService jwtService) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
+        this.authTokenService = authTokenService;
+        this.jwtService = jwtService;
     }
-
     public UserResponseDto createUser(CreateUserDto createUserDto) {
         UserEntity userEntity = modelMapper.map(createUserDto, UserEntity.class);
         userEntity.setPassword((passwordEncoder.encode(createUserDto.getPassword())));
